@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const app = express();
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
@@ -7,8 +8,14 @@ const User = require("./models/user");
 
 const session = require("express-session");
 const MongoStore = require("connect-mongo").default;
+console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
+
+console.log(
+    "MONGO_URI starts correctly:",
+    process.env.MONGO_URI?.startsWith("mongodb://") ||
+    process.env.MONGO_URI?.startsWith("mongodb+srv://")
+);
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 
 app.set("trust proxy", 1);
 app.use(express.static("public"));
