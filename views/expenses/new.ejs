@@ -52,7 +52,7 @@
             <label for="category">Category</label>
             <select id="category" name="expense[category]" required>
              <option value="Food" <%= formData.category === "Food" ? "selected" : "" %>>Food</option>
-            <option value="Travel" <%= formData.category === "Travel" ? "selected" : "" %>>Travel</option>
+            <option value="Travel" <%= formData.category === "Transport" ? "selected" : "" %>>Transport</option>
             <option value="Shopping" <%= formData.category === "Shopping" ? "selected" : "" %>>Shopping</option>
             <option value="Bills" <%= formData.category === "Bills" ? "selected" : "" %>>Bills</option>
             <option value="Entertainment" <%= formData.category === "Entertainment" ? "selected" : "" %>>Entertainment</option>
@@ -71,15 +71,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="notes">Notes (optional)</label>
+                <label for="notes">Notes (optional)</label>
                 <textarea
-                id="notes"
-                name="expense[notes]"
-                placeholder="Add extra details..."
-                ><%=formData.notes || '' %>
-                </textarea>
-                </div>
-
+                    id="notes"
+                    name="expense[notes]"
+                    placeholder="Add extra details..."
+                ><%= formData.notes || '' %></textarea>
+            </div>
                 <button type="submit" class="add-btn">Save Expense</button>
                 <a href="/" class="cancel-btn">Cancel</a>
             </form>
