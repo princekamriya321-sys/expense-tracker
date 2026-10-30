@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    
+<header class="main-header">
+    <div class="header-content">
+        <div class="header-text">
+            <h1>Expense Tracker</h1>
+            <p>Manage your money, track your spending.</p>
+        </div>
+
+        <form action="/logout" method="POST">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</header>
+
+    <main>
+        <section>
+            <h2>Dashboard</h2>
+          <div class="summary-cards">
+            <div class="summary-card">
+                 <h3>Total Expenses</h3>
+                 <p>₹<%= totalExpense %></p>
+            </div>
+            <div class="summary-card">
+                 <h3>This Month</h3>
+                 <p>₹<%= monthlyExpense %></p>
+            </div>
+            <div class="summary-card">
+                  <h3>Transactions</h3>
+                 <p><%= totalTransactions %></p>
+            </div>
+            <div class="summary-card">
+                <h3>Average Expense</h3>
+                <p>₹<%= averageExpense.toFixed(2) %></p>
+            </div>
+          </div>
+        </section>
+
+<!-- Summary Charts -->
+ <section class="chart-section">
+    <h2>Expenses by Category</h2>
+    <canvas id="expenseChart"></canvas>
+</section>
+
+<!-- Filters to find categories -->
+
+<form action="/" method="GET" class="category-filter">
+    <div class="filter-heading">
+        <h3>Filter Expenses</h3>
+        <p>Choose a category to explore your spending.</p>
+    </div>
+
+    <div class="filter-controls">
+        <div class="filter-field">
+            <label for="category">Expense category</label>
+            <select id="category" name="category">
+                <option value="All" <%= category === "All" ? "selected" : "" %>>All Categories</option>
+                <option value="Food" <%= category === "Food" ? "selected" : "" %>>Food</option>
+                <option value="Shopping" <%= category === "Shopping" ? "selected" : "" %>>Shopping</option>
+                <option value="Transport" <%= category === "Transport" ? "selected" : "" %>>Transport</option>
+                <option value="Education" <%= category === "Education" ? "selected" : "" %>>Education</option>
+                <option value="Entertainment" <%= category === "Entertainment" ? "selected" : "" %>>Entertainment</option>
+                <option value="Bills" <%= category === "Bills" ? "selected" : "" %>>Bills</option>
+                <option value="Other" <%= category === "Other" ? "selected" : "" %>>Other</option>
+            </select>
+        </div>
+
+        <button type="submit" class="filter-btn">Apply Filter</button>
+    </div>
+</form>
+
+
+
+        <section>
+           <div class="expense-header">
+    <h2>Recent Expenses</h2>
+    <a href="/expenses/new" class="add-btn">+ Add Expense</a>
+</div>
+
+<div class="table-container">
+<table>
+    <thead>
+        <tr>
+            <th>Expense</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <% expense.forEach((item) => { %>
+            <tr>
+            <td><%= item.description %></td>
+            <td><%= item.category %></td>
+            <td>
+                <%= item.date.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }) %>
+            </td>
+            <td>₹<%= item.amount %></td>
+            <td class="actions"> 
+            <a href="/expenses/<%= item._id %>/edit" class="edit-btn">Edit</a>
+             <form method="POST" action="/expenses/<%= item._id %>?_method=DELETE">
+                <button type="submit">Delete</button>
+            </form>
+            </td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+</div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+    const categoryTotals = <%- JSON.stringify(categoryTotals) %>;
+    const ctx = document.getElementById("expenseChart");
+
+    const totalAmount = Object.values(categoryTotals).reduce(
+        (sum, amount) => sum + amount,
+        0
+    );
+
+    const centerTextPlugin = {
+        id: "centerText",
+        afterDraw(chart) {
+            const { ctx, chartArea } = chart;
+
+            if (!chartArea) return;
+
+            const centerX = (chartArea.left + chartArea.right) / 2;
+            const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+            ctx.save();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#817064";
+            ctx.fillText("Total Spent", centerX, centerY - 14);
+
+            ctx.font = "bold 20px Arial";
+            ctx.fillStyle = "#3f2b20";
+            ctx.fillText(
+                "₹" + totalAmount.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2
+                }),
+                centerX,
+                centerY + 14
+            );
+
+            ctx.restore();
+        }
+    };
+
+    new Chart(ctx, {
+        type: "doughnut",
+
+        data: {
+            labels: Object.keys(categoryTotals),
+            datasets: [{
+                data: Object.values(categoryTotals)
+            }]
+        },
+
+        plugins: [centerTextPlugin],
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: "65%",
+
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let amount = context.raw;
+
+                            let total = context.dataset.data.reduce(
+                                (sum, value) => sum + value,
+                                0
+                            );
+
+                            let percentage = total > 0
+                                ? (amount / total) * 100
+                                : 0;
+
+                            return context.label + ": ₹" +
+                                amount.toLocaleString("en-IN") +
+                                " (" + percentage.toFixed(1) + "%)";
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Edit Expense</h1>
+        <p>Enter the details of your expense.</p>
+    </header>
+
+    <main>
+        <section class="expense-form">
+            <form action="/expenses/<%=editExpenses._id%>?_method=PATCH" method="POST">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input
+                        type="text"
+                        id="description"
+                        name="expense[description]"
+                        placeholder="e.g. Lunch with friends"
+                        value="<%=editExpenses.description%>"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (₹)</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        name="expense[amount]"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="e.g. 350"
+                        value="<%=editExpenses.amount%>"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="expense[category]" required>
+                        <option value="">Select category</option>
+                        <option value="Food" <%=editExpenses.category === "Food"? "selected":""%>>Food</option>
+                        <option value="Shopping"  <%=editExpenses.category === "Shopping"? "selected":""%> >Shopping</option>
+                        <option value="Transport"  <%=editExpenses.category === "Transport"? "selected":""%> >Transport</option>
+                        <option value="Education"  <%=editExpenses.category === "Education"? "selected":""%> >Education</option>
+                        <option value="Entertainment"  <%=editExpenses.category === "Entertainment"? "selected":""%> >Entertainment</option>
+                        <option value="Bills"  <%=editExpenses.category === "Bills"? "selected":""%> >Bills</option>
+                        <option value="Other"  <%=editExpenses.category === "Other"? "selected":""%> >Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input
+                        type="date"
+                        id="date"
+                        name="expense[date]"
+                        value="<%= editExpenses.date.toISOString().split('T')[0] %>"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <textarea
+                        id="notes"
+                        name="expense[notes]"
+                        placeholder="Add extra details..."
+                    ><%=editExpenses.notes || ""%></textarea>
+                </div>
+
+                <button type="submit" class="add-btn">Save Expense</button>
+                <a href="/" class="cancel-btn">Cancel</a>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
