@@ -25,11 +25,15 @@ const expenseSchema = new mongoose.Schema({
         type: Date,
         required: true,
         validate: {
-            validator: function(value) {
-                const today = new Date();
-                today.setHours(23, 59, 59, 999);
-                return value <= today;
-            },
+           validator: function(value) {
+    const expenseDate = value.toISOString().slice(0, 10);
+
+    const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata"
+    }).format(new Date());
+
+    return expenseDate <= today;
+},
             message: "Expense date cannot be in the future."
         }
     },
